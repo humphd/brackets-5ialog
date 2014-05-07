@@ -21,7 +21,7 @@ define(function (require, exports, module) {
                 title: "Open",
                 cancel: "Cancel",
                 open: "Open",
-                entries: err ? "Error reading dir entries: " + err : entries.join(",");
+                entries: err ? "Error reading dir entries: " + err : entries.join(",")
             };
             var dialog;
 
