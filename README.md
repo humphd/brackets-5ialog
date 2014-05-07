@@ -14,7 +14,7 @@ It adds 2 new items to the `File` menu:
 
 ##Testing/Debugging
 
-The easiest way to work on this is to install Brackets, and put brackets-5ialg in your local extensions folder.  Some tips from https://github.com/adobe/brackets/wiki/How-to-write-extensions on how to do that:
+You can either install this extension directly from GitHub (`File > Extension Manger > Install from URL... > https://github.com/humphd/brackets-5ialog/archive/master.zip`), or put brackets-5ialg in your local extensions folder.  Some tips from https://github.com/adobe/brackets/wiki/How-to-write-extensions on how to do that:
 
 * Open your extensions folder by selecting "Help > Show Extensions Folder" in Brackets
 * Inside the `user` folder(*), create place the `brackets-5ialog folder`.
