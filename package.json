@@ -1,0 +1,12 @@
+{
+    "name": "5ialog",
+    "title": "HTML5 File Dialogs",
+    "description": "Replace Bracket's native OS file dialogs with HTML versions",
+    "homepage": "https://github.com/humphd/brackets-5ialog",
+    "version": "0.0.1",
+    "author": "David Humphrey (http://github/humphd)",
+    "license": "MPL 2",
+    "engines": {
+        "brackets": ">=0.28.0"
+    }
+}
