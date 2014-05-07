@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
     var Menus = brackets.getModule("command/Menus");
     var Dialogs = brackets.getModule("widgets/Dialogs");
+    var FileSystem = brackets.fs;
     var AppInit = brackets.getModule("utils/AppInit");
     
     var COMMAND_OPEN_ID = "5ialog.open";
@@ -15,23 +16,26 @@ define(function (require, exports, module) {
     var fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
     
     function handleOpen() {
-        var data = {
-            title: "Open",
-            cancel: "Cancel",
-            open: "Open"
-        };
-        var dialog;
+        FileSystem.readdir("/", function(err, entries, stats) {
+            var data = {
+                title: "Open",
+                cancel: "Cancel",
+                open: "Open",
+                entries: err ? "Error reading dir entries: " + err : entries.join(",");
+            };
+            var dialog;
 
-        Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data), false);
-        dialog = $(".5ialog.instance");
+            Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data), false);
+            dialog = $(".5ialog.instance");
 
-        dialog.find(".dialog-button[data-button-id='cancel']").on("click", function() {
-            Dialogs.cancelModalDialogIfOpen("5ialog");
-        });
+            dialog.find(".dialog-button[data-button-id='cancel']").on("click", function() {
+                Dialogs.cancelModalDialogIfOpen("5ialog");
+            });
 
-        dialog.find(".dialog-button[data-button-id='open']").on("click", function() {
-            console.log("Open!");
-            Dialogs.cancelModalDialogIfOpen("5ialog");
+            dialog.find(".dialog-button[data-button-id='open']").on("click", function() {
+                console.log("Open!");
+                Dialogs.cancelModalDialogIfOpen("5ialog");
+            });
         });
     }
     
