@@ -2,6 +2,7 @@
 define(function (require, exports, module) {
     "use strict";
     
+    var Commands = brackets.getModule("command/Commands");
     var CommandManager = brackets.getModule("command/CommandManager");
     var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
     var Menus = brackets.getModule("command/Menus");
@@ -34,6 +35,7 @@ define(function (require, exports, module) {
 
             dialog.find(".dialog-button[data-button-id='open']").on("click", function() {
                 console.log("Open!");
+                // TODO: trigger open handler...
                 Dialogs.cancelModalDialogIfOpen("5ialog");
             });
         });
@@ -56,6 +58,7 @@ define(function (require, exports, module) {
 
         dialog.find(".dialog-button[data-button-id='save']").on("click", function() {
             console.log("Save!");
+            // TODO: trigger save handler...
             Dialogs.cancelModalDialogIfOpen("5ialog");
         });
     }
@@ -67,11 +70,11 @@ define(function (require, exports, module) {
     
     fileMenu.addMenuItem(COMMAND_OPEN_ID,
                          null,
-                         Menus.LAST_IN_SECTION,
-                         { sectionMarker: "Commands.FILE_NEW" });
+                         Menus.AFTER,
+                         Commands.FILE_OPEN);
     fileMenu.addMenuItem(COMMAND_SAVEAS_ID,
                          null,
-                         Menus.LAST_IN_SECTION,
-                         { sectionMarker: "Commands.FILE_SAVE" });
+                         Menus.AFTER,
+                         Commands.FILE_SAVE_AS);
     
 });
