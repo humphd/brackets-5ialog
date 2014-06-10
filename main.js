@@ -1,81 +1,81 @@
 /*global define, $, brackets, Mustache */
 define(function (require, exports, module) {
-    "use strict";
+  "use strict";
 
-    var Commands = brackets.getModule("command/Commands");
-    var CommandManager = brackets.getModule("command/CommandManager");
-    var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
-    var Menus = brackets.getModule("command/Menus");
-    var Dialogs = brackets.getModule("widgets/Dialogs");
-    var FileSystem = brackets.fs;
-    var AppInit = brackets.getModule("utils/AppInit");
+  var Commands = brackets.getModule("command/Commands");
+  var CommandManager = brackets.getModule("command/CommandManager");
+  var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
+  var Menus = brackets.getModule("command/Menus");
+  var Dialogs = brackets.getModule("widgets/Dialogs");
+  var FileSystem = brackets.fs;
+  var AppInit = brackets.getModule("utils/AppInit");
 
-    var COMMAND_OPEN_ID = "5ialog.open";
-    var COMMAND_SAVEAS_ID = "5ialog.saveas";
-    var openDialog = require("text!html/open.html");
-    var saveAsDialog = require("text!html/saveas.html");
-    var fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
+  var COMMAND_OPEN_ID = "5ialog.open";
+  var COMMAND_SAVEAS_ID = "5ialog.saveas";
+  var openDialog = require("text!html/open.html");
+  var saveAsDialog = require("text!html/saveas.html");
+  var fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
 
-    function handleOpen() {
-        FileSystem.readdir("/", function(err, entries, stats) {
-            var data = {
-                title: "Open",
-                cancel: "Cancel",
-                open: "Open",
-                error: err,
-                entries: entries
-            };
-            var dialog;
+  function handleOpen() {
+    FileSystem.readdir("/", function(err, entries, stats) {
+      var data = {
+        title: "Open",
+        cancel: "Cancel",
+        open: "Open",
+        error: err,
+        entries: entries
+      };
+      var dialog;
 
-            Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data), false);
-            dialog = $(".5ialog.instance");
+      Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data), false);
+      dialog = $(".5ialog.instance");
 
-            dialog.find(".dialog-button[data-button-id='cancel']").on("click", function() {
-                Dialogs.cancelModalDialogIfOpen("5ialog");
-            });
+      dialog.find(".dialog-button[data-button-id='cancel']").on("click", function() {
+        Dialogs.cancelModalDialogIfOpen("5ialog");
+      });
 
-            dialog.find(".dialog-button[data-button-id='open']").on("click", function() {
-                console.log("Open!");
+      dialog.find(".dialog-button[data-button-id='open']").on("click", function() {
+        console.log("Open!");
                 // TODO: trigger open handler...
                 Dialogs.cancelModalDialogIfOpen("5ialog");
-            });
-        });
-    }
+              });
+    });
+  }
 
-    function handleSaveAs() {
-        var data = {
-            title: "Save",
-            cancel: "Cancel",
-            save: "Save"
-        };
-        var dialog;
+  function handleSaveAs() {
+    var data = {
+      title: "Save",
+      cancel: "Cancel",
+      save: "Save"
+    };
+    var dialog;
 
-        Dialogs.showModalDialogUsingTemplate(Mustache.render(saveAsDialog, data), false);
-        dialog = $(".5ialog.instance");
+    Dialogs.showModalDialogUsingTemplate(Mustache.render(saveAsDialog, data), false);
+    dialog = $(".5ialog.instance");
 
-        dialog.find(".dialog-button[data-button-id='cancel']").on("click", function() {
-            Dialogs.cancelModalDialogIfOpen("5ialog");
-        });
+    dialog.find(".dialog-button[data-button-id='cancel']").on("click", function() {
+      Dialogs.cancelModalDialogIfOpen("5ialog");
+    });
 
-        dialog.find(".dialog-button[data-button-id='save']").on("click", function() {
-            console.log("Save!");
+    dialog.find(".dialog-button[data-button-id='save']").on("click", function() {
+      console.log("Save!");
             // TODO: trigger save handler...
             Dialogs.cancelModalDialogIfOpen("5ialog");
-        });
-    }
+          });
+  }
 
-    ExtensionUtils.loadStyleSheet(module, "css/styles.css");
+  ExtensionUtils.loadStyleSheet(module, "css/styles.css");
 
-    CommandManager.register("Open5", COMMAND_OPEN_ID, handleOpen);
-    CommandManager.register("SaveAs5", COMMAND_SAVEAS_ID, handleSaveAs);
+  CommandManager.register("Open5", COMMAND_OPEN_ID, handleOpen);
+  CommandManager.register("SaveAs5", COMMAND_SAVEAS_ID, handleSaveAs);
 
-    fileMenu.addMenuItem(COMMAND_OPEN_ID,
-                         null,
-                         Menus.AFTER,
-                         Commands.FILE_OPEN);
-    fileMenu.addMenuItem(COMMAND_SAVEAS_ID,
-                         null,
-                         Menus.AFTER,
-                         Commands.FILE_SAVE_AS);
+  fileMenu.addMenuItem(COMMAND_OPEN_ID,
+   null,
+   Menus.AFTER,
+   Commands.FILE_OPEN);
+  fileMenu.addMenuItem(COMMAND_SAVEAS_ID,
+   null,
+   Menus.AFTER,
+   Commands.FILE_SAVE_AS);
 
 });
