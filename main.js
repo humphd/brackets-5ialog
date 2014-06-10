@@ -1,4 +1,4 @@
-/*global define, $, brackets, Mustache */
+/*global define, $, brackets, Mustache, console */
 define(function (require, exports, module) {
   "use strict";
 
@@ -16,29 +16,43 @@ define(function (require, exports, module) {
   var saveAsDialog = require("text!html/saveas.html");
   var fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
 
+  function isVisible(item) {
+    return item.substring(0, 1) !== ".";
+  }
+
+  function closeModal() {
+    Dialogs.cancelModalDialogIfOpen("5ialog");
+    $(window).off('.5ialog');
+  }
+
   function handleOpen() {
-    FileSystem.readdir("/", function(err, entries, stats) {
+    FileSystem.readdir("/", function (err, entries, stats) {
       var data = {
         title: "Open",
         cancel: "Cancel",
         open: "Open",
         error: err,
-        entries: entries
+        entries: entries.filter(isVisible)
       };
       var dialog;
 
       Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data), false);
       dialog = $(".5ialog.instance");
 
-      dialog.find(".dialog-button[data-button-id='cancel']").on("click", function() {
-        Dialogs.cancelModalDialogIfOpen("5ialog");
+      dialog.find(".dialog-button[data-button-id='cancel']")
+        .on("click", closeModal);
+
+      $(window).on('keydown.5ialog', function (event) {
+        if (event.keyCode === 27) {
+          closeModal();
+        }
       });
 
-      dialog.find(".dialog-button[data-button-id='open']").on("click", function() {
+      dialog.find(".dialog-button[data-button-id='open']").on("click", function () {
         console.log("Open!");
-                // TODO: trigger open handler...
-                Dialogs.cancelModalDialogIfOpen("5ialog");
-              });
+        // TODO: trigger open handler...
+        closeModal();
+      });
     });
   }
 
@@ -53,15 +67,15 @@ define(function (require, exports, module) {
     Dialogs.showModalDialogUsingTemplate(Mustache.render(saveAsDialog, data), false);
     dialog = $(".5ialog.instance");
 
-    dialog.find(".dialog-button[data-button-id='cancel']").on("click", function() {
+    dialog.find(".dialog-button[data-button-id='cancel']").on("click", function () {
       Dialogs.cancelModalDialogIfOpen("5ialog");
     });
 
-    dialog.find(".dialog-button[data-button-id='save']").on("click", function() {
+    dialog.find(".dialog-button[data-button-id='save']").on("click", function () {
       console.log("Save!");
-            // TODO: trigger save handler...
-            Dialogs.cancelModalDialogIfOpen("5ialog");
-          });
+      // TODO: trigger save handler...
+      Dialogs.cancelModalDialogIfOpen("5ialog");
+    });
   }
 
   ExtensionUtils.loadStyleSheet(module, "css/styles.css");
