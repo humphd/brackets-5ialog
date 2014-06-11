@@ -7,7 +7,7 @@ define(function (require, exports, module) {
   var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
   var Menus = brackets.getModule("command/Menus");
   var Dialogs = brackets.getModule("widgets/Dialogs");
-  var FileSystem = brackets.fs;
+  var FileSystem = brackets.getModule("filesystem/FileSystem");
   var AppInit = brackets.getModule("utils/AppInit");
 
   var COMMAND_OPEN_ID = "5ialog.open";
@@ -26,13 +26,22 @@ define(function (require, exports, module) {
   }
 
   function handleOpen() {
-    FileSystem.readdir("/", function (err, entries, stats) {
+    var root = FileSystem.getDirectoryForPath('/');
+
+    root.getContents(function(err, files) {
+      var entries = files.map(function(file) {
+        return {
+          name: file.name,
+          className: file.isFile ? "file" : "directory"
+        };
+      });
+
       var data = {
         title: "Open",
         cancel: "Cancel",
         open: "Open",
         error: err,
-        entries: entries.filter(isVisible)
+        entries: entries
       };
       var dialog;
 

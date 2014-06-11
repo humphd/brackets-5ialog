@@ -1,5 +1,9 @@
 .file-item { list-style: none; }
 
+.file-item.directory {
+  background-color: red;
+}
+
 .5ialog {
   font-size: 1em;
 }
