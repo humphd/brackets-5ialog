@@ -30,17 +30,22 @@ define(function (require, exports, module) {
     $(window).off('.5ialog');
   }
 
+  function getEntriesFromFiles(files) {
+    var entries = files.map(function (file) {
+      return {
+        name: file.name,
+        className: file.isFile ? "file" : "directory",
+        fullPath: file.fullPath
+      };
+    });
+    return entries;
+  }
+
   function handleOpen() {
     var root = FileSystem.getDirectoryForPath('/');
 
     root.getContents(function (err, files) {
-      var entries = files.map(function (file) {
-        return {
-          name: file.name,
-          className: file.isFile ? "file" : "directory",
-          fullPath: file.fullPath
-        };
-      });
+      var entries = getEntriesFromFiles(files);
 
       var data = {
         title: "Open",
@@ -59,13 +64,7 @@ define(function (require, exports, module) {
         var path = $directory.attr("data-path");
 
         FileSystem.getDirectoryForPath(path).getContents(function (err, files) {
-          var entries = files.map(function (file) {
-            return {
-              name: file.name,
-              className: file.isFile ? "file" : "directory",
-              fullPath: file.fullPath
-            };
-          });
+          var entries = getEntriesFromFiles(files);
 
           var data = {
             error: err,
