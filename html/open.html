@@ -8,11 +8,7 @@
       {{/error}}
 
       {{^error}}
-        <ul class="file-list">
-          {{#entries}}
-          <li class="file-item {{className}}">{{name}}</li>
-          {{/entries}}
-        </ul>
+        {{> file-list}}
       {{/error}}
     </div>
     <div class="modal-footer">

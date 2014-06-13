@@ -14,7 +14,12 @@ define(function (require, exports, module) {
   var COMMAND_SAVEAS_ID = "5ialog.saveas";
   var openDialog = require("text!html/open.html");
   var saveAsDialog = require("text!html/saveas.html");
+  var fileListPartial = require("text!html/file-list.html");
   var fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
+
+  var partials = {
+    "file-list": fileListPartial
+  };
 
   function isVisible(item) {
     return item.substring(0, 1) !== ".";
@@ -28,11 +33,12 @@ define(function (require, exports, module) {
   function handleOpen() {
     var root = FileSystem.getDirectoryForPath('/');
 
-    root.getContents(function(err, files) {
-      var entries = files.map(function(file) {
+    root.getContents(function (err, files) {
+      var entries = files.map(function (file) {
         return {
           name: file.name,
-          className: file.isFile ? "file" : "directory"
+          className: file.isFile ? "file" : "directory",
+          fullPath: file.fullPath
         };
       });
 
@@ -45,8 +51,31 @@ define(function (require, exports, module) {
       };
       var dialog;
 
-      Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data), false);
+      Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data, partials), false);
       dialog = $(".5ialog.instance");
+
+      dialog.on("click", ".directory", function () {
+        var $directory = $(this);
+        var path = $directory.attr("data-path");
+
+        FileSystem.getDirectoryForPath(path).getContents(function (err, files) {
+          var entries = files.map(function (file) {
+            return {
+              name: file.name,
+              className: file.isFile ? "file" : "directory",
+              fullPath: file.fullPath
+            };
+          });
+
+          var data = {
+            error: err,
+            entries: entries
+          };
+
+          var $list = $(Mustache.render(fileListPartial, data));
+          $list.appendTo($directory);
+        });
+      });
 
       dialog.find(".dialog-button[data-button-id='cancel']")
         .on("click", closeModal);
