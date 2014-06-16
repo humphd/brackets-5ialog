@@ -9,6 +9,8 @@ define(function (require, exports, module) {
   var Dialogs = brackets.getModule("widgets/Dialogs");
   var FileSystem = brackets.getModule("filesystem/FileSystem");
   var AppInit = brackets.getModule("utils/AppInit");
+  var ProjectManager = brackets.getModule("project/ProjectManager");
+  var DocumentManager = brackets.getModule("document/DocumentManager");
 
   var COMMAND_OPEN_ID = "5ialog.open";
   var COMMAND_SAVEAS_ID = "5ialog.saveas";
@@ -41,8 +43,21 @@ define(function (require, exports, module) {
     return entries;
   }
 
+  function openPath(path) {
+    var result = new $.Deferred;
+
+    DocumentManager.getDocumentForPath(path)
+      .done(function (doc) {
+        DocumentManager.setCurrentDocument(doc);
+        result.resolve(doc);
+      });
+
+    return result;
+  }
+
   function handleOpen() {
-    var root = FileSystem.getDirectoryForPath('/');
+    var path = ProjectManager.getProjectRoot().fullPath;
+    var root = FileSystem.getDirectoryForPath(path);
 
     root.getContents(function (err, files) {
       var entries = getEntriesFromFiles(files);
@@ -73,6 +88,15 @@ define(function (require, exports, module) {
 
           var $list = $(Mustache.render(fileListPartial, data));
           $list.appendTo($directory);
+        });
+      });
+
+      dialog.on("dblclick", ".file", function () {
+        var $file = $(this);
+        var path = $file.attr("data-path");
+
+        openPath(path).always(function () {
+          closeModal();
         });
       });
 
