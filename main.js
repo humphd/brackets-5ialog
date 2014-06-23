@@ -89,6 +89,8 @@ define(function (require, exports, module) {
         var $directory = $(this);
         var path = $directory.attr("data-path");
 
+        if ($directory.find('.file-list').length) { return; }
+
         FileSystem.getDirectoryForPath(path).getContents(function (err, files) {
           var entries = getEntriesFromFiles(files);
 
