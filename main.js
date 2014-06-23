@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   var Menus = brackets.getModule("command/Menus");
   var Dialogs = brackets.getModule("widgets/Dialogs");
   var FileSystem = brackets.getModule("filesystem/FileSystem");
+  var DragAndDrop = brackets.getModule("utils/DragAndDrop");
   var AppInit = brackets.getModule("utils/AppInit");
   var ProjectManager = brackets.getModule("project/ProjectManager");
   var DocumentManager = brackets.getModule("document/DocumentManager");
@@ -43,10 +44,20 @@ define(function (require, exports, module) {
     return entries;
   }
 
-  function openPath(path) {
+  function openPaths(paths) {
     var result = new $.Deferred;
 
-    DocumentManager.getDocumentForPath(path)
+    var filteredPaths = DragAndDrop.filterFilesToOpen(paths);
+
+    var filesToOpen = filteredPaths.map(function(file) {
+      return FileSystem.getFileForPath(file);
+    });
+
+    DocumentManager.addListToWorkingSet(filesToOpen);
+
+    var lastPath = filteredPaths[filteredPaths.length - 1];
+
+    DocumentManager.getDocumentForPath(lastPath)
       .done(function (doc) {
         DocumentManager.setCurrentDocument(doc);
         result.resolve(doc);
@@ -91,11 +102,20 @@ define(function (require, exports, module) {
         });
       });
 
+      dialog.on("click", ".file", function(event) {
+        if (!event.shiftKey) {
+          dialog.find(".file").removeClass('selected');
+        }
+
+        $(this).toggleClass('selected');
+        event.stopPropagation();
+      });
+
       dialog.on("dblclick", ".file", function () {
         var $file = $(this);
         var path = $file.attr("data-path");
 
-        openPath(path).always(function () {
+        openPaths([path]).always(function () {
           closeModal();
         });
       });
@@ -110,8 +130,12 @@ define(function (require, exports, module) {
       });
 
       dialog.find(".dialog-button[data-button-id='open']").on("click", function () {
-        console.log("Open!");
-        // TODO: trigger open handler...
+        var paths = dialog.find('.file.selected').toArray().map(function(file) {
+          return $(file).attr("data-path");
+        });
+
+        openPaths(paths);
+
         closeModal();
       });
     });

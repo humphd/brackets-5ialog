@@ -1,7 +1,16 @@
 .file-item { list-style: none; }
 
 .file-item.directory {
-  background-color: red;
+  font-weight: bold;
+}
+
+.file-item.file {
+  font-weight: normal;
+}
+
+.file-item.selected {
+  color: #8fddff;
+  background-color: #2d2e30;
 }
 
 .5ialog {
