@@ -2,6 +2,8 @@
 define(function (require, exports, module) {
   "use strict";
 
+  var _ = brackets.getModule("thirdparty/lodash");
+
   var Commands = brackets.getModule("command/Commands");
   var CommandManager = brackets.getModule("command/CommandManager");
   var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
@@ -12,6 +14,7 @@ define(function (require, exports, module) {
   var AppInit = brackets.getModule("utils/AppInit");
   var ProjectManager = brackets.getModule("project/ProjectManager");
   var DocumentManager = brackets.getModule("document/DocumentManager");
+  var ViewUtils = brackets.getModule("utils/ViewUtils");
 
   var COMMAND_OPEN_ID = "5ialog.open";
   var COMMAND_SAVEAS_ID = "5ialog.saveas";
@@ -24,24 +27,9 @@ define(function (require, exports, module) {
     "file-list": fileListPartial
   };
 
-  function isVisible(item) {
-    return item.substring(0, 1) !== ".";
-  }
-
   function closeModal() {
     Dialogs.cancelModalDialogIfOpen("5ialog");
     $(window).off('.5ialog');
-  }
-
-  function getEntriesFromFiles(files) {
-    var entries = files.map(function (file) {
-      return {
-        name: file.name,
-        className: file.isFile ? "file" : "directory",
-        fullPath: file.fullPath
-      };
-    });
-    return entries;
   }
 
   function openPaths(paths) {
@@ -66,80 +54,112 @@ define(function (require, exports, module) {
     return result;
   }
 
+  var nodeId = 0;
+
+  function fileToTreeJSON(file) {
+    var json = {
+      data: file.name,
+      attr: { id: "node" + nodeId++ },
+      metadata: {
+        file: file
+      }
+    };
+
+    if (file.isDirectory) {
+      json.children = [];
+      json.state = "closed";
+      json.data = _.escape(json.data);
+    } else {
+      json.data = ViewUtils.getFileEntryDisplay(file);
+    }
+
+    return json;
+  }
+
+  function fileTreeDataProvider($tree, callback) {
+    var rootPath, directory;
+
+    // $tree is -1 when requesting the root
+    if ($tree === -1) {
+      rootPath = ProjectManager.getProjectRoot().fullPath;
+      directory = FileSystem.getDirectoryForPath(rootPath);
+    } else {
+      directory = $tree.data('file');
+    }
+
+    directory.getContents(function(err, files) {
+      var json = files.map(fileToTreeJSON);
+      callback(json);
+    });
+  }
+
+  function handleFileSelected(event, data) {
+    console.log(event, data);
+  }
+
+  function handleFileDoubleClick(event) {
+    var file = $(event.target).closest('li').data('file');
+
+    if (file && file.isFile) {
+      openPaths([file.fullPath]);
+      closeModal();
+    }
+  }
+
   function handleOpen() {
-    var path = ProjectManager.getProjectRoot().fullPath;
-    var root = FileSystem.getDirectoryForPath(path);
+    var data = {
+      title: "Open",
+      cancel: "Cancel",
+      open: "Open"
+    };
 
-    root.getContents(function (err, files) {
-      var entries = getEntriesFromFiles(files);
+    Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data, partials), false);
 
-      var data = {
-        title: "Open",
-        cancel: "Cancel",
-        open: "Open",
-        error: err,
-        entries: entries
-      };
-      var dialog;
+    var $dialog = $(".5ialog.instance");
 
-      Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data, partials), false);
-      dialog = $(".5ialog.instance");
+    initializeEventHandlers($dialog);
 
-      dialog.on("click", ".directory", function () {
-        var $directory = $(this);
-        var path = $directory.attr("data-path");
+    var $container = $dialog.find('.open-files-container');
 
-        if ($directory.find('.file-list').length) { return; }
+    var jstree = $container.jstree({
+      plugins: ["ui", "themes", "json_data", "crrm"],
+      json_data: { data: fileTreeDataProvider, correct_state: false },
+      core: { html_titles: true, animation: 0, strings : { loading : "Loading", new_node : "New node" } },
+      themes: {
+        theme: "brackets",
+        url: "styles/jsTreeTheme.css",
+        dots: false,
+        icons: false
+      }
+    });
 
-        FileSystem.getDirectoryForPath(path).getContents(function (err, files) {
-          var entries = getEntriesFromFiles(files);
+    jstree
+      .on('select_node.jstree', handleFileSelected)
+      .on('dblclick.jstree', handleFileDoubleClick);
+  }
 
-          var data = {
-            error: err,
-            entries: entries
-          };
+  function initializeEventHandlers($dialog) {
+    $dialog.find(".dialog-button[data-button-id='cancel']")
+      .on("click", closeModal);
 
-          var $list = $(Mustache.render(fileListPartial, data));
-          $list.appendTo($directory);
-        });
-      });
-
-      dialog.on("click", ".file", function(event) {
-        if (!event.shiftKey) {
-          dialog.find(".file").removeClass('selected');
-        }
-
-        $(this).toggleClass('selected');
-        event.stopPropagation();
-      });
-
-      dialog.on("dblclick", ".file", function () {
-        var $file = $(this);
-        var path = $file.attr("data-path");
-
-        openPaths([path]).always(function () {
-          closeModal();
-        });
-      });
-
-      dialog.find(".dialog-button[data-button-id='cancel']")
-        .on("click", closeModal);
-
-      $(window).on('keydown.5ialog', function (event) {
-        if (event.keyCode === 27) {
-          closeModal();
-        }
-      });
-
-      dialog.find(".dialog-button[data-button-id='open']").on("click", function () {
-        var paths = dialog.find('.file.selected').toArray().map(function(file) {
-          return $(file).attr("data-path");
-        });
-
-        openPaths(paths);
-
+    $(window).on('keydown.5ialog', function (event) {
+      if (event.keyCode === 27) {
         closeModal();
-      });
+      }
+    });
+
+    $dialog.find(".dialog-button[data-button-id='open']").on("click", function () {
+      var paths = $dialog.find('.jstree-clicked')
+        .closest('li')
+        .map(function() {
+          return $(this).data().file.fullPath
+        })
+        .get();
+
+      if (!paths.length) { return; }
+
+      openPaths(paths);
+      closeModal();
     });
   }
 

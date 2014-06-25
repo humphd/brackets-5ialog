@@ -3,14 +3,9 @@
         <h1 class="dialog-title">{{title}}</h1>
     </div>
     <div class="modal-body">
-      {{#error}}
-        Error: {{error}}
-      {{/error}}
-
-      {{^error}}
-        {{> file-list}}
-      {{/error}}
+      <div class="open-files-container jstree-brackets"></div>
     </div>
+
     <div class="modal-footer">
         <button class="dialog-button btn" data-button-id="cancel">{{cancel}}</button>
         <button class="dialog-button btn" data-button-id="open">{{open}}</button>
