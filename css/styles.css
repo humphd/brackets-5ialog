@@ -1,3 +1,26 @@
-.5ialog {
-    font-size: 1em;
+.jstree-5ialog .jstree-leaf a { color: black; }
+
+.jstree-5ialog li.jstree-closed>a,
+.jstree-5ialog li.jstree-open>a {
+  color: black;
+  font-weight: 500;
 }
+
+.jstree-5ialog li a.jstree-clicked,
+.jstree-5ialog li a.jstree-clicked {
+  background: rgba(3,0,0,0.5);
+}
+
+.jstree-5ialog .jstree-no-dots .jstree-open>ins {
+  -webkit-filter: drop-shadow(1px 0 1px black);
+}
+
+.modal-body {
+  height: 200px;
+  overflow: scroll;
+  padding: 15px 0 15px 10px;
+}
+
+.5ialog { font-size: 1em; }
+
+.5ialog .dialog-title { font-weight: 500; }
