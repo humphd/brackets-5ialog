@@ -23,7 +23,6 @@ define(function (require, exports, module) {
   var fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
 
   var nodeId = 0;
-  var baseModalHeight = 0;
 
   function closeModal() {
     Dialogs.cancelModalDialogIfOpen("5ialog");
@@ -112,7 +111,6 @@ define(function (require, exports, module) {
     Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data), false);
 
     var $dialog = $(".5ialog.instance");
-    baseModalHeight = $dialog.height();
 
     initializeEventHandlers($dialog);
 
@@ -137,9 +135,11 @@ define(function (require, exports, module) {
   }
 
   function resizeModal() {
-    var height = $('.5ialog .jstree').height();
+    var maxHeight = 400;
+    var treeHeight = $('.5ialog .jstree').height();
+    var maxModalHeight = Math.min(treeHeight, maxHeight);
 
-    $('.5ialog.modal').height(baseModalHeight + height);
+    $('.5ialog .modal-body').height(maxModalHeight);
   }
 
   function initializeEventHandlers($dialog) {
