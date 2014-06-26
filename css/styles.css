@@ -1,18 +1,25 @@
-.file-item { list-style: none; }
+.jstree-5ialog .jstree-leaf a { color: black; }
 
-.file-item.directory {
-  font-weight: bold;
+.jstree-5ialog li.jstree-closed>a,
+.jstree-5ialog li.jstree-open>a {
+  color: black;
+  font-weight: 500;
 }
 
-.file-item.file {
-  font-weight: normal;
+.jstree-5ialog li a.jstree-clicked,
+.jstree-5ialog li a.jstree-clicked {
+  background: rgba(3,0,0,0.5);
 }
 
-.file-item.selected {
-  color: #8fddff;
-  background-color: #2d2e30;
+.jstree-5ialog .jstree-no-dots .jstree-open>ins {
+  -webkit-filter: drop-shadow(1px 0 1px black);
 }
 
-.5ialog {
-  font-size: 1em;
+.modal-body {
+  max-height: 500px;
+  padding: 15px 0 15px 10px;
 }
+
+.5ialog { font-size: 1em; }
+
+.5ialog .dialog-title { font-weight: 500; }
