@@ -16,7 +16,8 @@
 }
 
 .modal-body {
-  max-height: 500px;
+  height: 200px;
+  overflow: scroll;
   padding: 15px 0 15px 10px;
 }
 
