@@ -20,10 +20,12 @@ define(function (require, exports, module) {
   var COMMAND_SAVEAS_ID = "5ialog.saveas";
   var openDialog = require("text!html/open.html");
   var saveAsDialog = require("text!html/saveas.html");
+  var fileListPartial = require("text!html/file-list.html");
   var fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
 
-  var nodeId = 0;
-  var baseModalHeight = 0;
+  var partials = {
+    "file-list": fileListPartial
+  };
 
   function closeModal() {
     Dialogs.cancelModalDialogIfOpen("5ialog");
@@ -51,6 +53,8 @@ define(function (require, exports, module) {
 
     return result;
   }
+
+  var nodeId = 0;
 
   function fileToTreeJSON(file) {
     var json = {
@@ -109,10 +113,9 @@ define(function (require, exports, module) {
       open: "Open"
     };
 
-    Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data), false);
+    Dialogs.showModalDialogUsingTemplate(Mustache.render(openDialog, data, partials), false);
 
     var $dialog = $(".5ialog.instance");
-    baseModalHeight = $dialog.height();
 
     initializeEventHandlers($dialog);
 
@@ -132,14 +135,7 @@ define(function (require, exports, module) {
 
     jstree
       .on('select_node.jstree', handleFileSelected)
-      .on('dblclick.jstree', handleFileDoubleClick)
-      .on('loaded.jstree open_node.jstree close_node.jstree', resizeModal);
-  }
-
-  function resizeModal() {
-    var height = $('.5ialog .jstree').height();
-
-    $('.5ialog.modal').height(baseModalHeight + height);
+      .on('dblclick.jstree', handleFileDoubleClick);
   }
 
   function initializeEventHandlers($dialog) {
@@ -155,8 +151,8 @@ define(function (require, exports, module) {
     $dialog.find(".dialog-button[data-button-id='open']").on("click", function () {
       var paths = $dialog.find('.jstree-clicked')
         .closest('li')
-        .map(function () {
-          return $(this).data().file.fullPath;
+        .map(function() {
+          return $(this).data().file.fullPath
         })
         .get();
 
